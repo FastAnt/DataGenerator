@@ -18,26 +18,41 @@ MAX_SIZE = 165
 MINIMAL_X = 0
 MINIMAL_Y = 0
 
+# string contants
+BACKGROUNDS_FOLDER = './backgrounds'
+TARGETS_FOLDER = './result_directory_targets'
+OUTPUT_FOLDER = './result_directory'
+
 
 ia.seed(1)
+
+
 
 # counter for naming
 global_counter = 1
 
-for root_back, dirs_back, files_back in os.walk('./backgrounds'):
+if not os.path.exists(OUTPUT_FOLDER):
+    os.makedirs(OUTPUT_FOLDER)
+
+for root_back, dirs_back, files_back in os.walk(BACKGROUNDS_FOLDER):
+    files_back = filter(lambda file: file.endswith('.png'), files_back)
+
     for file_back in files_back:
         for i in range(1, NUMBER_OF_REPEATS):
-            for root, dirs, files in os.walk('./result_directory_targets'):
+            for root, dirs, files in os.walk(TARGETS_FOLDER):
+                files = filter(lambda file: file.endswith('.png'), files)
+
                 for file in files:
-                    if not file.endswith('.png'):
-                        continue
                     global_counter = global_counter + 1
                     background = Image.open(os.path.join(root_back, file_back))
 
-                    new_file_name_txt = 'result_directory/' + str(global_counter) + '.txt'
-                    new_file_name_img = 'result_directory/' + str(global_counter) + '.jpg'
+                    new_file_name_txt = OUTPUT_FOLDER + '/' + str(global_counter) + '.txt'
+                    new_file_name_img = OUTPUT_FOLDER + '/' + str(global_counter) + '.png'
                     new_line = ''
+
+                    # process each image file max 3 times
                     for j in range(1, 3):
+                        # each file has 40% probability to be processed
                         is_need_skip = random.randint(0, 10)
                         if is_need_skip > 4:
                             continue
@@ -52,15 +67,14 @@ for root_back, dirs_back, files_back in os.walk('./backgrounds'):
                         orig_width = foreground.width
                         orig_height = foreground.height
 
-                        foreg_size = random.randint(MIN_SIZE, MAX_SIZE)
-                        size_ratio_w = int(foreg_size) / foreground.width
-                        size_ratio_h = int(foreg_size) / foreground.height
+                        new_foreg_size = random.randint(MIN_SIZE, MAX_SIZE)
+                        size_ratio_w = int(new_foreg_size) / orig_width
+                        size_ratio_h = int(new_foreg_size) / orig_height
 
-                        foreground = foreground.resize((int(foreg_size), int(foreg_size)), Image.ANTIALIAS)
-                        if(background.width - foreground.width < 1):
+                        if (background.width - new_foreg_size < 1 or background.height - new_foreg_size < 1):
                             continue
-                        if (background.height - foreground.height < 1):
-                            continue
+
+                        foreground = foreground.resize((int(new_foreg_size), int(new_foreg_size)), Image.ANTIALIAS)
 
                         #paste target on background
                         foreg_x = random.randint(int(background.width/2), background.width - foreground.width)
@@ -78,8 +92,7 @@ for root_back, dirs_back, files_back in os.walk('./backgrounds'):
 
                         new_line_list[3] = str(float(new_line_list[3]) * orig_width *size_ratio_w / background.width)
                         new_line_list[4] = str(float(new_line_list[4]) * orig_height * size_ratio_h / background.height)
-                        new_line = str(new_line_list[0]) + ' ' + str(new_line_list[1]) + ' ' + str(new_line_list[2]) + ' ' + str(
-                            new_line_list[3]) + ' ' + str(new_line_list[4]) + '\n'
+                        new_line = " ".join(new_line_list)
 
 
                         new_file = open(new_file_name_txt, 'a+')

@@ -1,0 +1,8 @@
+Each 'Image' file must have a corresponding 'txt' file with the same name.
+
+Each text file must contain next information separated by space: 
+1. id - unique ID of an object (the same as file names)
+2. x - X coordinate of an object inside an Image file
+3. y - Y coordinate of an object inside an Image file
+4. width - Width of an target object
+5. height - Height of an target object
